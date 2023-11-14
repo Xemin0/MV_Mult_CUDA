@@ -2,16 +2,16 @@
 
 ## Folder Structure
 #### C++/CUDA Part
-- ./MV_GPU/lib/MyUtils.h
-- ./MV_GPU/MyUtils.cpp (separate file that include C/C++ utilities)
-- ./MV_GPU/lib/MV_GPU.h
-- ./MV_GPU/MV_GPU.cu (kernels and kernel launching methods with CUDA based utilities)
-- ./MV_GPU/main.cu (the main driver)
-- ./MV_GPU/MV_GPU.sh (SLURM script to run on Oscar@CCV with CUDA)
+- `./MV_GPU/lib/MyUtils.h`
+- `./MV_GPU/MyUtils.cpp` (separate file that include C/C++ utilities)
+- `./MV_GPU/lib/MV_GPU.h`
+- `./MV_GPU/MV_GPU.cu` (kernels and kernel launching methods with CUDA based utilities)
+- `./MV_GPU/main.cu` (the main driver)
+- `./MV_GPU/MV_GPU.sh` (SLURM script to run on Oscar@CCV with CUDA)
 
 #### Python Part (For Plotting)
-- results/python_plot/heatmap.py (Plotting data matrices as heatmaps)
-- results/python_plot/RFmodel.py (Plotting Roofline model for the tested GPU)
+- `results/python_plot/heatmap.py` (Plotting data matrices as heatmaps)
+- `results/python_plot/RFmodel.py` (Plotting Roofline model for the tested GPU)
 
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
