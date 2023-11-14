@@ -57,6 +57,7 @@ Output:
 ## To-dos
 - Verify the correctness of current three kernels for Matrix-Vector Multiplication
 - Finish the kernel leveraging 'Instruction Level Parallelism' 
+- Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
 - Test performances for larger matrix/vector sizes
 - Try more WARP Level Primitives
