@@ -46,6 +46,7 @@ The matrices used are randomly generated with entries ranging from -1e6 to 1e6 f
 Input:
 - base  : whether to use baseline method
 - single: whether to use single block or multiple block method
+
 Output:
 - elapsed_time: in Microsecond
 - FLOP rate: in TeraFLOP/s
