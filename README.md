@@ -37,7 +37,7 @@ To run on Oscar@CCV use the provided SLURM script
 ## Usage of the Primary Function in `main.cu`
 `eval_FLOPrate(bool base, bool single, unsigned int n = 5)`
 
-This function evaluate the achieved FLOP rate for different sized Matrix in Matrix-Matrix Multiplication of $C = C+ AB$ with three different parallel designs, by taking the average of $n$ ($n = 5$ by default) runs for each configuration excluding the warmup runs (3 by default), with the option to use 
+This function evaluate the achieved FLOP rate for different sized Matrix in Matrix-Matrix Multiplication of $$C = C+ AB$$ with three different parallel designs, by taking the average of $n$ ($n = 5$ by default) runs for each configuration excluding the warmup runs (3 by default), with the option to use 
 - baseline  : baseline method 1 thread per row
 - single    : single thread block per row
 - multiple  : multiple thread block per row
