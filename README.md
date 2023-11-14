@@ -44,11 +44,11 @@ This function evaluate the achieved FLOP rate for different sized Matrix in Matr
 The matrices used are randomly generated with entries ranging from -1e6 to 1e6 for their sizes variying from $O(10)$ to $O(10^4)$
 
 Input:
-    - base  : whether to use baseline method
-    - single: whether to use single block or multiple block method
+- base  : whether to use baseline method
+- single: whether to use single block or multiple block method
 Output:
-    - elapsed_time: in Microsecond
-    - FLOP rate: in TeraFLOP/s
+- elapsed_time: in Microsecond
+- FLOP rate: in TeraFLOP/s
 
 
 **matrix of elapsed time in `./data/e_us*.dat` while matrix of FLOPrate in `./data/FLOPrate*.dat`**
