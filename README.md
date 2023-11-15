@@ -56,7 +56,8 @@ Output:
 
 ## To-dos
 - Verify the correctness of current three kernels for Matrix-Vector Multiplication
-- Finish the kernel leveraging 'Instruction Level Parallelism' 
+- Fix the issue with using `BLOCK_SIZE` and `blockDim.x` interchangeably in kernels
+- Finish the kernel with 'Instruction Level Parallelism' 
 - Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
 - Test performances for larger matrix/vector sizes
