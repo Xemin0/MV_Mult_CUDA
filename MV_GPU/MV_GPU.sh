@@ -13,7 +13,7 @@
 #SBATCH -n 1
 
 # Request Memory
-#SBATCH --mem=20G
+#SBATCH --mem=40G
 
 #SBATCH -t 00:35:00
 

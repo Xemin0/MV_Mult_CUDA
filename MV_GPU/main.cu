@@ -53,7 +53,7 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 
 	unsigned long n_flop; // number of FLOPs
 
-    unsigned int log_max_size = 9; // max size = 10^[1 + 0.5 * (log_max_size - 1)]
+    unsigned int log_max_size = 8; // max size = 10^[1 + 0.5 * (log_max_size - 1)]
 
 	// Prepare to write results to a file
 	// - Average time elapsed in microsecond
