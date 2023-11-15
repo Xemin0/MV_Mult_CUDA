@@ -29,7 +29,7 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 	 * FLOPrate (TeraFLOP per second) = total FLOPs / total elapsed time
 	 *
 	 * Dimensions N and M will be chosen as 10^(1 + 0.5k) 
-     * for k = 0, 1, ... , 8 = log_max_size.
+     * for k = 0, 1, ... , 7 = log_max_size.
      *
 	 * Total FLOPs is calculated as (2*N*M) in tot_FLOP()
 	 * Total elapsed time is recorded as the average of 5 eval_MV_Mult()
