@@ -13,6 +13,10 @@
 - `results/python_plot/heatmap.py` (Plotting data matrices as heatmaps)
 - `results/python_plot/RFmodel.py` (Plotting Roofline model for the tested GPU)
 
+#### Miscellaneous Folders
+- `./MV_GPU/data/` required for output files performance measurements
+- `./MV_GPU/Results/` required if using `SLURM` script 
+
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
 

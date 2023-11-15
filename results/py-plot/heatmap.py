@@ -20,7 +20,7 @@ elif "FLOPrate_multi.dat" == fname:
 else:
     print("File name not yet supported.")
 
-fname = "../data/" + fname
+fname = "../../MV_GPU/data/" + fname
 
 
 # Read and load as np arrays 
