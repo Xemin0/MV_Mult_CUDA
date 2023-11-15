@@ -60,6 +60,7 @@ Output:
 
 ## To-dos
 - Verify the correctness of current three kernels for Matrix-Vector Multiplication
+- Ensure that `eval_MV_Mult()` calls in `main.cu` does not return negative values
 - Fix the issue with using `BLOCK_SIZE` and `blockDim.x` interchangeably in kernels
 - Fix the logic of the random generator used (Seeding)
 - Finish the kernel with 'Instruction Level Parallelism' 
