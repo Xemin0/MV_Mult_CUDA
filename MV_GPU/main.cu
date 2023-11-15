@@ -28,7 +28,9 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 	 *
 	 * FLOPrate (TeraFLOP per second) = total FLOPs / total elapsed time
 	 *
-	 * Dimensions N and M will be chosen as 10^(1 + 0.5k) for k = 0, 1, ... , 6.
+	 * Dimensions N and M will be chosen as 10^(1 + 0.5k) 
+     * for k = 0, 1, ... , 8 = log_max_size.
+     *
 	 * Total FLOPs is calculated as (2*N*M) in tot_FLOP()
 	 * Total elapsed time is recorded as the average of 5 eval_MV_Mult()
 	 *
@@ -50,6 +52,8 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 	float t; // time in microsecond
 
 	unsigned long n_flop; // number of FLOPs
+
+    unsigned int log_max_size = 9; // max size = 10^[1 + 0.5 * (log_max_size - 1)]
 
 	// Prepare to write results to a file
 	// - Average time elapsed in microsecond
@@ -86,9 +90,9 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 	outfile_fr.open(file_fr.c_str(), ios::out | ios::trunc);
 
 	// Varying N and M logarithmically
-	for (i = 0; i < 7; i++) {
+	for (i = 0; i < log_max_size; i++) {
 		N = pow(10.0, 1 + 0.5 * i); // converted to unsigned int
-		for (j = 0; j < 7; j ++) {
+		for (j = 0; j < log_max_size; j ++) {
 			M = pow(10.0, 1 + 0.5 * j);
 
 			// Number of FLOPs

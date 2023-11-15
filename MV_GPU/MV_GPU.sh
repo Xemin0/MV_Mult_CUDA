@@ -13,9 +13,9 @@
 #SBATCH -n 1
 
 # Request Memory
-#SBATCH --mem=8G
+#SBATCH --mem=20G
 
-#SBATCH -t 00:20:00
+#SBATCH -t 00:35:00
 
 #SBATCH -e ./Results/job-%J.err
 #SBATCH -o ./Results/job-%J.out
