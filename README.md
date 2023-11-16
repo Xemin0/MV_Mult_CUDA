@@ -63,6 +63,7 @@ Output:
 - Ensure that `eval_MV_Mult()` calls in `main.cu` does not return negative values
 - Fix the issue with using `BLOCK_SIZE` and `blockDim.x` interchangeably in kernels
 - Fix the logic of the random generator used (Seeding)
+- Add a subroutine to compute Matrix-Vector Multiplication and return the resulting vector
 - Finish the kernel with 'Instruction Level Parallelism' 
 - Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
