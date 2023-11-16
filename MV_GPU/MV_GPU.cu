@@ -54,7 +54,7 @@ struct gpuTimer
         cudaEventRecord(stop, 0); 
     }   
 
-    float Elapsed() // milisecond (ms)
+    float Elapsed() // millisecond (ms)
     {   
         float elapsed;
         cudaEventSynchronize(stop);

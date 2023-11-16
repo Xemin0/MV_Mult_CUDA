@@ -49,11 +49,11 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 	// Misc vars
 	unsigned int i, j, k; // Indices
 	unsigned int N, M; // Dimensions
-	float t; // time in microsecond
+	float t, curr_t; // time in microsecond
 
 	unsigned long n_flop; // number of FLOPs
 
-    unsigned int log_max_size = 8; // max size = 10^[1 + 0.5 * (log_max_size - 1)]
+    unsigned int log_max_size = 8, count; // max size = 10^[1 + 0.5 * (log_max_size - 1)]
 
 	// Prepare to write results to a file
 	// - Average time elapsed in microsecond
@@ -99,6 +99,7 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 			n_flop = tot_FLOP(N, M);
 
 			t = 0.0; // reset the total recorded time
+            count = 0;
 
 			//Warm up loops
 			for (k = 0; k < 3; k++) {
@@ -107,13 +108,20 @@ void eval_FLOPrate(bool base = true, bool single = false, unsigned int n = 5) {
 
 
 			for (k = 0; k < n; k++) { // taking the average of n runs
-				t += eval_MV_Mult(N, M, base, single);
+				curr_t = eval_MV_Mult(N, M, base, single);
+                if (curr_t <= 0)
+                    cout << "runtime is not positive" << endl;
+                else
+                {
+                    t += curr_t;
+                    count++;
+                }
 			}
-			t /= n; // taking the average time in microsecond
+			t /= count; // taking the average time in microsecond
 
 			// Write the result to file_loc
 			outfile_t << t << " "; // in microsecond
-			outfile_fr << 1e-6 * n_flop / (t + 0.0) << " "; // teraFLOP/s
+			outfile_fr << n_flop / (1e6 * (t + 0.0)) << " "; // teraFLOP/s
 		}
 		outfile_t << endl;
 		outfile_fr << endl;
