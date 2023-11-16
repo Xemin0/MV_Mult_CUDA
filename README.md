@@ -64,6 +64,7 @@ Output:
 - Fix the issue with using `BLOCK_SIZE` and `blockDim.x` interchangeably in kernels
 - Fix the logic of the random generator used (Seeding)
 - Add a subroutine to compute Matrix-Vector Multiplication and return the resulting vector
+- Add a subroutine to convert a matrix between 2-D and row-major/column-major representations
 - Finish the kernel with 'Instruction Level Parallelism' 
 - Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
