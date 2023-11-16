@@ -91,7 +91,7 @@ There are conceptually two major steps in defining a kernel for Matrix-Vector Mu
 
 Both steps invite an amalgam of parallelizing techniques in CUDA.
 
-In **Frobenius Multiplication** step: matrix can be partitioned in various ways (block and warps level) for parallelism while as the vector is repeatedly accessed in Matrix-Vector Multiplication (used for each row of the matrix), it can be loaded into some predefined shared memory local to each block or shared inside a block by `__shfl_sync()` method
+In **Frobenius Multiplication** step: matrix can be partitioned in various ways (block and warps level) for parallelism while as the vector is repeatedly accessed in Matrix-Vector Multiplication (used for each row of the matrix), it can be loaded into some predefined (**Memory Size Cannot be a Runtime Variable, Must be a Constant; unless using the `extern` keyword and manually pass in the memory size when the kernel is launched**) shared memory local to each block or shared inside a block by `__shfl_sync()` method
 
 In **Reduced Summation** step: since GPU executes instructions on the Warp level, and given the visible scope of data on Block level, we could also leverage the advantages of Warp level primitives provided in CUDA and that of shared memory or shuffle methods.
 
