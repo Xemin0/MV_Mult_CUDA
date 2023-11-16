@@ -11,8 +11,8 @@ peak_performance = 130.5 * 1e12 # Tera FLOPs/s
 memory_BW = 672 * 1e9 #GB/s
 
 intensity = np.logspace(-2, np.log10(500), 500)
-performance_bound = np.ones_like(intensity) * peak_performance / 1e9 # convert to GFLOP/s
-BW_bound = intensity * memory_BW / 1e9 # convert to GFLOP/s
+performance_bound = np.ones_like(intensity) * peak_performance / 1e12 # convert to TFLOP/s
+BW_bound = intensity * memory_BW / 1e12 # convert to TFLOP/s
 
 # Take the minimum of the two bounds
 RF_bound = np.minimum(performance_bound, BW_bound)
@@ -33,7 +33,7 @@ plt.loglog(AI, achieved_performance, 'go',mfc = 'none', label = 'Achieved Perfor
 plt.ylabel('Performance [TFLOP/s]')
 plt.xlabel('Arithmetic Intensity [FLOP/Byte]')
 
-plt.title('Roofline Model for Intel Xeon(R) Gold 6242')
+plt.title('Roofline Model for NVIDIA RTX 6000')
 
 plt.grid(True, which = 'both', ls = '--')
 plt.legend(loc = 4) # Lower Right corner
