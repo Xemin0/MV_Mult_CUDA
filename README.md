@@ -66,6 +66,9 @@ Output:
 - Add a subroutine to compute Matrix-Vector Multiplication and return the resulting vector
 - Add a subroutine to convert a matrix between 2-D and row-major/column-major representations
 - Finish the kernel with 'Instruction Level Parallelism' 
+- Prevent idling threads/blocks maybe by doing reduction on HOST
+- Adding CUDA streams
+- 
 - Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
 - Test performances for larger matrix/vector sizes
