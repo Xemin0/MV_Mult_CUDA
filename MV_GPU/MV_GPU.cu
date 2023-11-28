@@ -107,7 +107,7 @@ __global__ void MV_base_kernel(
         __syncthreads();
     }
 
-    if (row < n_rows) d_C[row] = y_val;
+    if (row < n_rows) d_C[row] += y_val; // ### remove + if eval y = Ax
 }
 
 void MV_base(
@@ -181,7 +181,7 @@ __global__ void MV_single_kernel(
 
     // The first thread of a block writes the result to the output vector
     if (0 == col && row < n_rows)
-        d_C[row] += partialSum[0];
+        d_C[row] += partialSum[0]; // #### remove + for y = Ax
 }
 
 void MV_single(
@@ -288,7 +288,7 @@ __global__ void multi_reduction_kernel(
     // the first thread in each block has the reduced sum
     // and writes to the output
     if (0 == threadIdx.x)
-        d_C[row] = sum;
+        d_C[row] += sum; // ### Remove + for y = Ax
 }
 
 
