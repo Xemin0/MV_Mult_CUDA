@@ -91,16 +91,16 @@ CUDA programming in general is constituted by following steps:
 The key step lies in designing the kernels for the problem of interest, and thus we have separate the kernels and the corresponding kernel launching methods in 'MV_GPU.cu' for readability. 
 
 There are conceptually two major steps in defining a kernel for Matrix-Vector Multiplication:
-- Frobenius Multiplication
+- Hadamard Multiplication
 - Reduced Summation
 
 Both steps invite an amalgam of parallelizing techniques in CUDA.
 
-In **Frobenius Multiplication** step: matrix can be partitioned in various ways (block and warps level) for parallelism while as the vector is repeatedly accessed in Matrix-Vector Multiplication (used for each row of the matrix), it can be loaded into some predefined (**Memory Size Cannot be a Runtime Variable, Must be a Constant; unless using the `extern` keyword and manually pass in the memory size when the kernel is launched**) shared memory local to each block or shared inside a block by `__shfl_sync()` method
+In **Hadamard Multiplication** step: matrix can be partitioned in various ways (block and warps level) for parallelism while as the vector is repeatedly accessed in Matrix-Vector Multiplication (used for each row of the matrix), it can be loaded into some predefined (**Memory Size Cannot be a Runtime Variable, Must be a Constant; unless using the `extern` keyword and manually pass in the memory size when the kernel is launched**) shared memory local to each block or shared inside a block by `__shfl_sync()` method
 
 In **Reduced Summation** step: since GPU executes instructions on the Warp level, and given the visible scope of data on Block level, we could also leverage the advantages of Warp level primitives provided in CUDA and that of shared memory or shuffle methods.
 
-In **Multiple Block Method** we adopted **Two-Phase Reduction** for matrix-vector multiplication, where two consecutive kernels - one for Frobenius Multiplication along with `atomicAdd` for partial summation within a block, the other for Reduced Summation using `__shfl_down_sync()` - are deployed, instead of using nested kernel calls which is only supported in newer GPU architectures.
+In **Multiple Block Method** we adopted **Two-Phase Reduction** for matrix-vector multiplication, where two consecutive kernels - one for Hadamard Multiplication along with `atomicAdd` for partial summation within a block, the other for Reduced Summation using `__shfl_down_sync()` - are deployed, instead of using nested kernel calls which is only supported in newer GPU architectures.
 
 Besides, **Instruction Level Parallelism** (for ILP = 2) is also considered.
 
