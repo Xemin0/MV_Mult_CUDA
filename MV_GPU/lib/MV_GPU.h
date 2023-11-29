@@ -13,6 +13,7 @@
  *                  Row-Major order for contiguous memory access by threads
  *              x : M dimensional vector
  *
+ * ******* for y = Ax; refer to the definition .cpp file for details ****** 
  */
 
 //#ifndef LIB_MV_GPU_H_

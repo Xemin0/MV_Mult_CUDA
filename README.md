@@ -1,4 +1,12 @@
 # Evaluating Performances of Matrix-Vector Multiplication with CUDA
+Primarily focus on the performance of different methods on $C = C + Ax$, with basic memory allocation methods, change the main drivier `main.cu` file for different memory allocators
+
+*For* $y = Ax$ *refer to the end of each kernel defined in* `MV_GPU.cu` for the small modifications
+
+### Matrix Multiplication with CUDA Stream
+Project codes and some results are in branch `withCUDAstream`.
+
+Swtich to that branch by `git checkout withCUDAstream`
 
 ## Folder Structure
 #### C++/CUDA Part
@@ -70,7 +78,7 @@ Output:
 - Finish the kernel with 'Instruction Level Parallelism' 
 - Prevent idling threads/blocks maybe by doing reduction on HOST
 - Adding CUDA streams
-- 
+- Test with advanced memory allocators
 - Devise a MakeFile
 - Add ErrorCheck for all CUDA function calls
 - Test performances for larger matrix/vector sizes

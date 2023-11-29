@@ -13,6 +13,10 @@
  *                  Row-Major order for contiguous memory access by threads
  *              x : M dimensional vector
  *
+ *
+ * ******* for y = Ax, ********
+ * ******* check the summation rule commented at the end of each kernel ***
+ *
  * ## Current Issue: BLOCK_SIZE and blockIdx.x are used interchangeably ##
  */
 
