@@ -1,5 +1,5 @@
 # Evaluating Performances of Matrix-Vector Multiplication with CUDA
-Primarily focus on the performance of different methods on $C = C + Ax$, with basic memory allocation methods, change the main drivier `main.cu` file for different memory allocators
+Primarily focus on the performance (in the form of elapsed time on GPU with achieved FLOP rate) of different methods on $C = C + Ax$, with basic memory allocation methods, change the main drivier `main.cu` file for different memory allocators
 
 *For* $y = Ax$ *refer to the end of each kernel defined in* `MV_GPU.cu` for the small modifications
 
