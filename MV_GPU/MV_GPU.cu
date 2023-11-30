@@ -351,7 +351,7 @@ float eval_MV_Mult(unsigned int N, unsigned int M,\
      *
      * C = C + Ax
      *
-     *      C (res) : M dimensional vector
+     *      C (res) : N dimensional vector
      *      A (mat) : N by M matrix flattened into a (N*M) vector
      *      x (vec) : M dimensional vector
      *
