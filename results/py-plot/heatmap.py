@@ -8,23 +8,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-fname = "FLOPrate_base.dat"
+numBlocks = 1
+
+fname = "e_us" + str(numBlocks) + "_cpu.dat"
+
+fname = "../data/" + fname
+
+title_str = f"Total Time (milisecond, ms) for Matrix-Vector Multiplication with\n {numBlocks} Streams in CUDA"
 
 
-if "FLOPrate_base.dat" == fname:
-    title_str = "TeraFLOP/s with Varying Matrix Dimensions(log)\n1 thread per row\n for $C = C+AB$"
-elif "FLOPrate_single.dat" == fname:
-    title_str = "TeraFLOP/s with Varying Matrix Dimensions(log)\n1 block per row\n for $C = C+AB$"
-elif "FLOPrate_multi.dat" == fname:
-    title_str = "TeraFLOP/s with Varying Matrix Dimensions(log)\nmultiple block per row\n for $C = C+AB$"
-else:
-    print("File name not yet supported.")
-
-fname = "../../MV_GPU/data/" + fname
-
-
-# Read and load as np arrays 
-data = np.array([d.strip().split() for d in open(fname).readlines()], dtype = float)
+# Read and load as np arrays
+# Convert from microsecond to milisecond
+data = np.array([d.strip().split() for d in open(fname).readlines()], dtype = float) / 1000.0
 
 n,m = data.shape
 
@@ -36,13 +31,13 @@ cbar = plt.colorbar(im, fraction = 0.046, pad = 0.04)
 # add annotations/values
 for i in range(n):
     for j in range(m):
-        plt.annotate(f'{data[i][j]:.2e}', xy = (j , i),
+        plt.annotate(f'{data[i][j]:.2g}', xy = (j , i),
                          ha = 'center', va = 'center', color = 'black')
 
 plt.title(title_str)
 
-plt.xlabel("$M = 10^{1 + m/2}$")
-plt.ylabel("$N = 10^{1 + n/2}$")
+plt.xlabel("$M = 1000 + 200m$")
+plt.ylabel("$N = 1000 + 200n$")
 
 
 plt.show()
