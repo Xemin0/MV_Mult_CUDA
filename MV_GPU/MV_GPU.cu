@@ -150,8 +150,8 @@ __global__ void MV_single_kernel(
     unsigned int col = threadIdx.x; // Each thread in the block handles multiple elements in the dot product
                            // in case m_cols > BLOCK_SIZE
 
-    __shared__ double partialSum[blockDim.x]; // Shared memory for partial sums
-    __shared__ double x_shared[blockDim.x];   // Shared memory for vector x
+    __shared__ double partialSum[BLOCK_SIZE]; // Shared memory for partial sums
+    __shared__ double x_shared[BLOCK_SIZE];   // Shared memory for vector x
 
     // Initialize partial sum    
     partialSum[threadIdx.x] = 0;
@@ -165,8 +165,8 @@ __global__ void MV_single_kernel(
 
         __syncthreads();
 
-        // Accumulate partial sums with stride = blockDim.x per row
-        // ** Or alternatively, each thread handles a subvector of size ceil(m_cols / blockDim.x) **
+        // Accumulate partial sums with stride = BLOCK_SIZE per row
+        // ** Or alternatively, each thread handles a subvector of size ceil(m_cols / BLOCK_SIZE) **
         if (row < n_rows)
             partialSum[threadIdx.x] += d_A[row * m_cols + i] * x_shared[threadIdx.x];
 
@@ -223,7 +223,7 @@ __global__ void MV_multi_kernel(
     unsigned int startCol = (blockIdx.x % blocksPerRow) * blockDim.x + threadIdx.x;
     unsigned int stride = blockDim.x * blocksPerRow;
 
-    __shared__ double x_shared[blockDim.x];
+    __shared__ double x_shared[BLOCK_SIZE];
 
     // Load vector in to shared memory
     if (startCol < m_cols)
