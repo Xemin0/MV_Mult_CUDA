@@ -17,7 +17,7 @@ using namespace std;
 #include "./lib/MyUtils.h" // Customized utility functions for Matrix-Vector Multiplication
 #include "./lib/MV_GPU.h" // kernels and kernel launching methods for MV multiplication on GPU
 
-void compare_performance(unsigned int n = 4) {
+void compare_performance(bool isCPU = true, unsigned int n = 4) {
 	/*
 	 * Task: Compare the Performances
      * with varying
@@ -56,7 +56,11 @@ void compare_performance(unsigned int n = 4) {
     // Varying the Number of Streams
 	for (Kstreams = 1; Kstreams <= 8; Kstreams++) {
         // Prepare to write into a file
-        file_t = "./data/e_us" + to_string(Kstreams) + ".dat";
+        file_t = "./data/e_us" + to_string(Kstreams);
+        if (isCPU)
+            file_t += "_cpu.dat";
+        else
+            file_t += "_gpu.dat";
         // Open the files in write mode
         // if they alrdy exist, truncates the contents
         fstream outfile_t;
@@ -74,12 +78,12 @@ void compare_performance(unsigned int n = 4) {
 
                 //Warm up loops
                 for (k = 0; k < 3; k++) {
-                    eval_MV_Mult_streams(N, M, Kstreams); 
+                    eval_MV_Mult_streams(N, M, Kstreams, isCPU); 
                 }
 
 
                 for (k = 0; k < n; k++) { // taking the average of n runs
-                    curr_t = eval_MV_Mult_streams(N, M, Kstreams); //#######
+                    curr_t = eval_MV_Mult_streams(N, M, Kstreams, isCPU); //#######
                     if (curr_t <= 0)
                         cout << "runtime is not positive" << endl;
                     else

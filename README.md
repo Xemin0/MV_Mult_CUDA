@@ -1,6 +1,8 @@
 # Evaluating Performances of Matrix-Vector Multiplication with CUDA Streams
 Evaluating the performance of $y = Ax$ with $K$ Streams for $K = 1, 2, \dots, 8$
 
+All tests run on RTX3090 with CUDA10.2.0
+
 
 ## Folder Structure
 #### C++/CUDA Part
@@ -42,6 +44,10 @@ To profile with CUDA NSight
 
 To run on Oscar@CCV use the provided SLURM script
 `sbatch ./MV_GPU.sh`
+
+## TO-DOs
+- Combine the `gpuTimer` and `cpuTimer` into one
+- 
 
 ## Methodology 
 As in the kernel `MV_KBlocks_kernel` and the kernel launching method `MV_KBlocks` in `MV_GPU.cu`

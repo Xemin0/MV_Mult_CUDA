@@ -407,7 +407,8 @@ float MV_KBlocks(
         double *h_y,
         unsigned int n_rows,
         unsigned int m_cols,
-        unsigned int k_blocks) // # of streams
+        unsigned int k_blocks,
+        bool isCPU) // # of streams
 {
     /*
      * Corresponding Kernel Launching Method with Streams
@@ -424,7 +425,7 @@ float MV_KBlocks(
     // Each Block/Stream will handle these rows respectively
     size_t sizePerBlock = rowsPerBlock * m_cols * sizeof(double);
 
-    //gpuTimer timer; // should use CPU time to include the time used to copy data between host and device
+    gpuTimer timerG; // should use CPU time to include the time used to copy data between host and device
     cpuTimer timer;
 
     // Temporary Memory for submatrices of A on GPU
@@ -438,6 +439,7 @@ float MV_KBlocks(
     for (int i = 0; i < k_blocks; i++)
         cudaStreamCreate(&streams[i]);
 
+    timerG.start();
     timer.Start();
 
     // Asynchronous Operations
@@ -478,6 +480,7 @@ float MV_KBlocks(
     // or simply sync each stream by cudaStreamSynchronize()
     cudaDeviceSynchronize();
 
+    timerG.Stop();
     timer.Stop();
 
     // Clean up
@@ -488,7 +491,10 @@ float MV_KBlocks(
     }
 
     // in microsecond (us)
-    return timer.Elapsed();
+    if (isCPU)
+        return timer.Elapsed();
+    else
+        return timerG.Elapsed() / 1000.0;
 }
 
 //==================
@@ -630,7 +636,7 @@ float eval_MV_Mult(unsigned int N, unsigned int M,\
     return timer.Elapsed() / 1000.0;
 }
 
-float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams)
+float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams, bool isCPU)
 {
     /*
      * Evaluate the time elapsed in microsecond calling `MV_KBlocks()`
@@ -683,7 +689,8 @@ float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams
                          h_res,
                          N,
                          M,
-                         Kstreams);
+                         Kstreams,
+                         isCPU);
 
 
     // Clean up

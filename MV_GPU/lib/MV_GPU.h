@@ -164,7 +164,8 @@ float MV_KBlocks(
         double *h_y,
         unsigned int n_rows,
         unsigned int m_cols,
-        unsigned int k_blocks); // # of streams
+        unsigned int k_blocks, // # of streams
+        bool isCPU = true); 
     /*
      * Corresponding Kernel Launching Method with Streams
      * that also returns a time of stream operations in microsecond (us)
@@ -207,5 +208,5 @@ void MV_multi_ILP2(
 float eval_MV_Mult(unsigned int N, unsigned int M,\
         bool base = true, bool single = false);
 
-float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams);
+float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams, bool isCPU = true);
 //#endif /* LIB_MV_GPU_H_ */
