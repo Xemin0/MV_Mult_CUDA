@@ -13,7 +13,7 @@
 #SBATCH -n 1
 
 # Request Memory
-#SBATCH --mem=40G
+#SBATCH --mem=70G
 
 #SBATCH -t 00:35:00
 
@@ -33,10 +33,10 @@ nvcc -arch sm_86 -c main.cu -o main.o
 g++ -c MyUtils.cpp -o MyUtils.o
 
 # Link everything together
-nvcc main.o MV_GPU.o MyUtils.o -o testMV_GPU.o
+nvcc main.o MV_GPU.o MyUtils.o -o testStreams.out
 
 # Remove interediate files
 rm main.o MV_GPU.o MyUtils.o
 
-# Run
-./testMV_GPU.o
+# Run and Profile
+nsys profile ./testStreams.out

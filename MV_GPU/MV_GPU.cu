@@ -1,21 +1,17 @@
 /*
  * MV_GPU.cu
  *
- *  Created on: Nov 8, 2023
+ *  Created on: Nov 24, 2023
  *
  * Description: Definitions of Kernels for Matrix-Vector Multiplication on GPU
  * 				along with the corresponding Kernel Launching methods
  * 
- *              Matrix-Vector Multiplication C = C + Ax
+ *              Matrix-Vector Multiplication y = Ax
  *
- *              C : N dimensional vector
+ *              y : N dimensional vector
  *              A : N by M matrix flattened into a (N*M) vector, 
  *                  Row-Major order for contiguous memory access by threads
  *              x : M dimensional vector
- *
- *
- * ******* for y = Ax, ********
- * ******* check the summation rule commented at the end of each kernel ***
  *
  * ## Current Issue: BLOCK_SIZE and blockIdx.x are used interchangeably ##
  */
@@ -111,7 +107,7 @@ __global__ void MV_base_kernel(
         __syncthreads();
     }
 
-    if (row < n_rows) d_C[row] += y_val; // ### remove + if eval y = Ax
+    if (row < n_rows) d_C[row] = y_val;
 }
 
 void MV_base(
@@ -185,7 +181,7 @@ __global__ void MV_single_kernel(
 
     // The first thread of a block writes the result to the output vector
     if (0 == col && row < n_rows)
-        d_C[row] += partialSum[0]; // #### remove + for y = Ax
+        d_C[row] = partialSum[0];
 }
 
 void MV_single(
@@ -292,7 +288,7 @@ __global__ void multi_reduction_kernel(
     // the first thread in each block has the reduced sum
     // and writes to the output
     if (0 == threadIdx.x)
-        d_C[row] += sum; // ### Remove + for y = Ax
+        d_C[row] = sum;
 }
 
 
@@ -312,6 +308,182 @@ void multi_reduction(
     multi_reduction_kernel<<<nblocks, nthreads, 0, 0>>>(d_partialSums, d_C, n_rows, m_cols);
 }
 
+//==================
+
+// Kernel with specified number of blocks and each block handles multiple rows of the matrix
+__global__ void MV_KBlocks_kernel(
+                double *d_A, // Matrix on DEVICE
+                double *d_x, // by cudaHostAlloc
+                double *d_y,
+                unsigned int n_rows,
+                unsigned int m_cols,
+                unsigned int k_blocks)
+{
+    /*
+     * Handling the Whole Matrix with a Specified Number of Blocks
+     * while each block is processed by a CUDA stream
+     *
+     * the vector x will be allocated by cudaHostAlloc accessible by both the HOST and the DEVICE
+     * Using shared memory to load the vector x 
+     * as it will be used repeatedly for multiple rows of the matrix within each block
+     */
+    unsigned int rowsPerBlock = (n_rows + k_blocks - 1) / k_blocks; // Each Block will handle these rows respectively
+    unsigned int startCol = threadIdx.x;
+    unsigned int stride = blockDim.x;
+
+    __shared__ double x_shared[BLOCK_SIZE]; // shared memory to load the vector x
+    unsigned int curr_row;
+    
+
+    /*
+     * 
+     * For Small Column Size \approx blockDim.x
+     *
+    // For each row that the block is responsible for
+    #pragma unroll
+    for (int i = 0; i < rowsPerBlock; i++)
+    {
+        double sum = 0.0;
+        curr_row = blockIdx.x * rowsPerBlock + i;
+
+        if (curr_row < n_rows){
+            // in case the entire row is not covered by the assigned block size
+            for (int col = startCol; col < m_cols; col += stride)
+            {
+                // load the vector x
+                // *** Redundent loads for multiple rows *** //
+                x_shared[threadIdx.x] = d_x[col];
+
+                __syncthreads();
+                
+                // for each thread calculate the partial sum
+                sum += d_A[curr_row * m_cols + col] * x_shared[threadIdx.x];
+
+                __syncthreads(); // ** Might be needed if m_cols > blockDim.x
+            }
+            // Atomically add to the output for the current row
+            atomicAdd(&d_y[curr_row], sum);
+        }
+    }
+    */
+
+
+    // For Large Column Size > blockDim.x
+    //
+    // in case the entire row is not covered by the assigned block size
+    for (int col = startCol; col < m_cols; col += stride)
+    {
+        // load the vector x
+        x_shared[threadIdx.x] = d_x[col];
+
+        __syncthreads();
+
+        // For each row that the block is responsible for 
+        for (int i = 0; i < rowsPerBlock; i++)
+        {
+            double sum = 0.0;
+            curr_row = blockIdx.x * rowsPerBlock + i;
+
+            if (curr_row < n_rows)
+            {
+                sum += d_A[curr_row * m_cols + col] * x_shared[threadIdx.x];
+
+                // Atomically add to the output for the current row
+                atomicAdd(&d_y[curr_row], sum);
+            }
+        }
+    }
+}
+
+
+float MV_KBlocks(
+        double *h_A, // Matrix on HOST
+        double *d_x, // by cudaHostAlloc
+        double *d_y,
+        double *h_y,
+        unsigned int n_rows,
+        unsigned int m_cols,
+        unsigned int k_blocks) // # of streams
+{
+    /*
+     * Corresponding Kernel Launching Method with Streams
+     * that also return a time for stream operations in microsecond (us)
+     * Since there are total of K Blocks for the N by M matrix
+     *** The block size could be anything ***
+     *** for consistency, it is hereby set as BLOCK_SIZE for the learning purpose ***
+     *the transfer of matrix A from CPU to GPU will be done by each stream respectively
+     */
+    dim3 nthreads(BLOCK_SIZE, 1, 1); // BlockDim
+    dim3 nblocks(k_blocks, 1, 1); // GridDim
+
+    unsigned int rowsPerBlock = (n_rows + k_blocks - 1) / k_blocks; 
+    // Each Block/Stream will handle these rows respectively
+    size_t sizePerBlock = rowsPerBlock * m_cols * sizeof(double);
+
+    gpuTimer timer;
+
+    // Temporary Memory for submatrices of A on GPU
+    // Dividing the Matrix A into k_blocks sub matrices
+    double *d_A_sub[k_blocks];
+    for (int i = 0; i < k_blocks; i++)
+        cudaMalloc(&d_A_sub[i], sizePerBlock);
+
+    // Creating Streams
+    cudaStream_t streams[k_blocks];
+    for (int i = 0; i < k_blocks; i++)
+        cudaStreamCreate(&streams[i]);
+
+    timer.Start();
+
+    // Asynchronous Operations
+    // Each stream Copies a block of rows of Matrix A into GPU
+    for (int i = 0; i < k_blocks; i++)
+    {
+        // offset for the current block
+        size_t offset = i * rowsPerBlock * m_cols;
+
+        if (k_blocks - 1 == i && n_rows % k_blocks != 0) // remainder rows
+        {
+            // Copy of submatrix to GPU
+            cudaMemcpyAsync(d_A_sub[i], h_A + offset, (n_rows % k_blocks) * m_cols * sizeof(double), cudaMemcpyHostToDevice, streams[i]);
+
+            // Compute multiplication of each block/stream
+            // Launch kernel on the current stream
+            MV_KBlocks_kernel <<< nblocks, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, n_rows % k_blocks, m_cols, 1);
+
+            // Copy value of y back to CPU
+            cudaMemcpyAsync(h_y + offset, d_y + offset, (n_rows % k_blocks) * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
+        }
+        else
+        {
+            // Copy of submatrix to GPU
+            cudaMemcpyAsync(d_A_sub[i], h_A + offset, sizePerBlock, cudaMemcpyHostToDevice, streams[i]);
+
+            // Compute multiplication of each block/stream
+            // Launch kernel on the current stream
+            MV_KBlocks_kernel <<< nblocks, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, rowsPerBlock, m_cols, 1);
+
+            // Copy value of y back to CPU
+            cudaMemcpyAsync(h_y + offset, d_y + offset, rowsPerBlock * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
+        }
+
+    }
+    // Sync devices 
+    // or simply sync each stream by cudaStreamSynchronize()
+    cudaDeviceSynchronize();
+
+    timer.Stop();
+
+    // Clean up
+    for (int i = 0; i < k_blocks; i++)
+    {
+        cudaStreamDestroy(streams[i]);
+        cudaFree(d_A_sub[i]);
+    }
+
+    // in microsecond (us)
+    return timer.Elapsed() / 1000.0;
+}
 
 //==================
 
@@ -344,7 +516,7 @@ void MV_multi_ILP2(
 //========= Utilities  =========//
 
 float eval_MV_Mult(unsigned int N, unsigned int M,\
-        bool base = true, bool single = false) {
+        bool base, bool single) {
     /*
      * Evaluate the time elapsed in microsecond calling `MV_Mult()`
      * for the specified dimensions
@@ -452,5 +624,70 @@ float eval_MV_Mult(unsigned int N, unsigned int M,\
     return timer.Elapsed() / 1000.0;
 }
 
+float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams)
+{
+    /*
+     * Evaluate the time elapsed in microsecond calling `MV_KBlocks()`
+     *
+     * y = Ax
+     *
+     *      y (res) : N dimensional vector
+     *      A (mat) : N by M matrix flattened into a (N*M) vector
+     *      x (vec) : M dimensional vector // *** cudaHostAlloc
+     *
+     * Input:
+     *      - N, M      : Matrix Dimensions
+     *      - Kstreams  : Number of streams used for Matrix-Vector Multiplication
+     * 
+     * Output:
+     *      - elapsed time in microsecond (us)
+     */
+    // Check CUDA Device
+    int ncuda_devices = 0;
+    cudaGetDeviceCount(&ncuda_devices);
+    //printf("ncuda_devices = %d\n", ncuda_devices);
 
-//#endif /* LIB_MV_GPU_H_ */
+    if (0 == ncuda_devices)
+    {
+        fprintf(stderr, "NO CUDA DEVICES, EXITING\n");
+        return -1;                                                                                     
+    }
+    cudaSetDevice(0);
+
+    // Data Preparation on Host
+    double* h_mat = rand_vec(N*M);
+    double* h_res = new double[N];
+
+    // Using pinned host memory for the vector x
+    double* vec = rand_vec(M);
+    double* h_vec;
+    cudaHostAlloc((void **)&h_vec, M * sizeof(double), cudaHostAllocDefault);
+    // copy the values
+    for (int i = 0; i < M; i++)
+        h_vec[i] = vec[i];
+
+    // Allocate Memory on Device excluding the Matrix
+    double *d_res;
+    cudaMalloc( (void**) &d_res, sizeof(double)*N );
+
+    // Compute on DEVICE
+    float t = MV_KBlocks(h_mat,
+                         h_vec,
+                         d_res,
+                         h_res,
+                         N,
+                         M,
+                         Kstreams);
+
+
+    // Clean up
+    delete[] h_mat;
+    delete[] h_res;
+    delete[] vec;
+
+    cudaFreeHost(h_vec);
+
+    cudaFree(d_res);
+
+    return t;
+}
