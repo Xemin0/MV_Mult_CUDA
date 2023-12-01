@@ -56,7 +56,7 @@ To run on Oscar@CCV use the provided SLURM script
 
 ## TO-DOs
 - Combine the `gpuTimer` and `cpuTimer` into one, so that the GPU time and CPU time measurements are comparable
-- 
+- Reduce the number of calls for `atomicAdd` in the kernel; instead should do Manual Reduction before writing the final result (the corresponding entry) with a single `atomicAdd`
 
 ## Methodology 
 As in the kernel `MV_KBlocks_kernel` and the kernel launching method `MV_KBlocks` in `MV_GPU.cu`
