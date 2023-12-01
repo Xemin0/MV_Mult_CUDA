@@ -8,7 +8,9 @@ and the time is measured for the following steps:
 - Launch the kernel on each stream
 - For each `streams[i]` copy the corresponding (partial) result of $y$ back to CPU
 
-All tests run on RTX3090 with CUDA10.2.0
+Data Results (CPU time) `.dat` files without `_cpu` or `_gpu` are obtained on RTX3090 with CUDA10.2.0
+
+The others are obtained on RTX6000 with CUDA10.2.0 (The current results are taken separately. They thus may not be comparable)
 
 
 ## Folder Structure
@@ -53,7 +55,7 @@ To run on Oscar@CCV use the provided SLURM script
 `sbatch ./MV_GPU.sh`
 
 ## TO-DOs
-- Combine the `gpuTimer` and `cpuTimer` into one
+- Combine the `gpuTimer` and `cpuTimer` into one, so that the GPU time and CPU time measurements are comparable
 - 
 
 ## Methodology 

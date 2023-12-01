@@ -494,7 +494,7 @@ float MV_KBlocks(
     if (isCPU)
         return timer.Elapsed();
     else
-        return timerG.Elapsed() / 1000.0;
+        return timerG.Elapsed() * 1000.0;
 }
 
 //==================
@@ -633,7 +633,7 @@ float eval_MV_Mult(unsigned int N, unsigned int M,\
         cudaFree(partialSums);
 
     // Calculate and return the elapsed time in microsecond
-    return timer.Elapsed() / 1000.0;
+    return timer.Elapsed() * 1000.0;
 }
 
 float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams, bool isCPU)
