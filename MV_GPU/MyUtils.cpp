@@ -6,7 +6,7 @@
  * 				for Matrix-Vector Multiplication
  */
 
-#include <sys/time.h> // for gettimeofday() system call
+#include <sys/time.h>
 //#include <cstdlib>  // for rand() and srand()
 				   	// dated and could be replaced by <random>
 					// std::uniform_real_distribution
@@ -149,6 +149,7 @@ unsigned long get_time() {
 
 	return (curr_time.tv_sec * 1e6) + curr_time.tv_usec; // Combining the two returned elements in microsecond
 }
+
 
 unsigned long tot_FLOP(unsigned int N, unsigned int M) {
 	/*

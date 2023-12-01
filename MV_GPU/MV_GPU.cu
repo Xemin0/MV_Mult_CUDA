@@ -424,7 +424,8 @@ float MV_KBlocks(
     // Each Block/Stream will handle these rows respectively
     size_t sizePerBlock = rowsPerBlock * m_cols * sizeof(double);
 
-    gpuTimer timer;
+    //gpuTimer timer; // should use CPU time to include the time used to copy data between host and device
+    cpuTimer timer;
 
     // Temporary Memory for submatrices of A on GPU
     // Dividing the Matrix A into k_blocks sub matrices
@@ -487,7 +488,7 @@ float MV_KBlocks(
     }
 
     // in microsecond (us)
-    return timer.Elapsed() / 1000.0;
+    return timer.Elapsed();
 }
 
 //==================

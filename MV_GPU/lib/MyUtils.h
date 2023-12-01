@@ -9,6 +9,7 @@
 #ifndef LIB_MYUTILS_H_
 #define LIB_MYUTILS_H_
 
+#include <chrono> // high precision timer 
 
 /*
  * Matrix Related Subroutines
@@ -33,6 +34,28 @@ double* rand_vec(unsigned int N, double lower_bound = -100, double upper_bound =
  * Performance Related Subroutines
  */
 unsigned long get_time(); // Return current sys time in microsecond;
+
+struct cpuTimer
+{
+    std::chrono::time_point<std::chrono::high_resolution_clock> start;
+    std::chrono::time_point<std::chrono::high_resolution_clock> end;
+
+    void Start()
+    {   
+        start = std::chrono::high_resolution_clock::now();
+    }   
+        
+    void Stop()
+    {   
+        end = std::chrono::high_resolution_clock::now();
+    }   
+
+    float Elapsed() // microsecond(us)
+    {   
+        return std::chrono::duration<float, std::micro>(end - start).count();
+    }   
+};
+
 
 unsigned long tot_FLOP(unsigned int N, unsigned int M); // total FLOPs for an N by M matrix-vector multiplication
 
