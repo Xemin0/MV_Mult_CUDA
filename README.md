@@ -1,5 +1,12 @@
 # Evaluating Performances of Matrix-Vector Multiplication with CUDA Streams
-Evaluating the performance of $y = Ax$ with $K$ Streams for $K = 1, 2, \dots, 8$
+Evaluating the performance of $y = Ax$ with:
+- $K$ Streams for $K = 1, 2, \dots, 8$
+- The dimensions of the matrix $A$: $M$-by-$N$ for $M,N = 1000 + 200i,\quad i = 0, 1, \dots, 5$
+
+and the time is measured for the following steps:
+- For each `streams[i]` copy a submatrix `A_sub[i]` to GPU
+- Launch the kernel on each stream
+- For each `streams[i]` copy the corresponding (partial) result of $y$ back to CPU
 
 All tests run on RTX3090 with CUDA10.2.0
 

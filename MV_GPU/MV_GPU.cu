@@ -439,7 +439,7 @@ float MV_KBlocks(
     for (int i = 0; i < k_blocks; i++)
         cudaStreamCreate(&streams[i]);
 
-    timerG.start();
+    timerG.Start();
     timer.Start();
 
     // Asynchronous Operations
