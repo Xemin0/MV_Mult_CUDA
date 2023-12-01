@@ -25,8 +25,8 @@ void compare_performance(unsigned int n = 4) {
      *      - Number of Streams (K) ranging 1 - 8
 	 *
 	 *
-	 * Dimensions N and M will be chosen as 1000 + 100k
-     * for k = 0, 1, ... , 10 
+	 * Dimensions N and M will be chosen as 1000 + 200k
+     * for k = 0, 1, ... , 5 
      *
 	 * The results will be output into separate files.
 	 *
@@ -63,11 +63,11 @@ void compare_performance(unsigned int n = 4) {
         outfile_t.open(file_t.c_str(), ios::out | ios::trunc);
 
 	    // Varying Matrix Dimensions N and K 
-		for (i = 0; i < 11; i++) {
-			N = 1000 + 100 * i;
-            for (j = 0; j < 11; j++)
+		for (i = 0; i < 6; i++) {
+			N = 1000 + 200 * i;
+            for (j = 0; j < 6; j++)
             {
-                M = 1000 + 100 * j;
+                M = 1000 + 200 * j;
 
                 t = 0.0; // reset the total recorded time
                 count = 0;

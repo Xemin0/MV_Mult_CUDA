@@ -2,8 +2,6 @@
  * MV_GPU.h
  *
  *  Created on: Nov 22, 2023
- *      Author: Shilai Yang
- *              Yuhong Zhang
  *
  * Description: Declarations of Kernels for Matrix-Vector Multiplication on GPU
  * 				along with the corresponding Kernel Launching methods

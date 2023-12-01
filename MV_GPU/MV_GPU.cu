@@ -332,6 +332,7 @@ __global__ void MV_KBlocks_kernel(
     unsigned int stride = blockDim.x;
 
     __shared__ double x_shared[BLOCK_SIZE]; // shared memory to load the vector x
+    //__shared__ double x_shared[BLOCK_SIZE]; // shared memory for partial sum
     unsigned int curr_row;
     
 
@@ -389,7 +390,10 @@ __global__ void MV_KBlocks_kernel(
                 sum += d_A[curr_row * m_cols + col] * x_shared[threadIdx.x];
 
                 // Atomically add to the output for the current row
-                atomicAdd(&d_y[curr_row], sum);
+                atomicAdd(&d_y[curr_row], sum); 
+                // #### instead of atomicAdd consider partial sum then
+                // #### Reduction within block before atomically add the final result 
+                
             }
         }
     }
@@ -440,31 +444,32 @@ float MV_KBlocks(
     for (int i = 0; i < k_blocks; i++)
     {
         // offset for the current block
-        size_t offset = i * rowsPerBlock * m_cols;
+        size_t offset_A = i * rowsPerBlock * m_cols;
+        size_t offset_y = i * rowsPerBlock;
 
         if (k_blocks - 1 == i && n_rows % k_blocks != 0) // remainder rows
         {
             // Copy of submatrix to GPU
-            cudaMemcpyAsync(d_A_sub[i], h_A + offset, (n_rows % k_blocks) * m_cols * sizeof(double), cudaMemcpyHostToDevice, streams[i]);
+            cudaMemcpyAsync(d_A_sub[i], h_A + offset_A, (n_rows % k_blocks) * m_cols * sizeof(double), cudaMemcpyHostToDevice, streams[i]);
 
             // Compute multiplication of each block/stream
             // Launch kernel on the current stream
-            MV_KBlocks_kernel <<< nblocks, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, n_rows % k_blocks, m_cols, 1);
+            MV_KBlocks_kernel <<< 1, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, n_rows % k_blocks, m_cols, 1);
 
             // Copy value of y back to CPU
-            cudaMemcpyAsync(h_y + offset, d_y + offset, (n_rows % k_blocks) * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
+            cudaMemcpyAsync(h_y + offset_y, d_y + offset_y, (n_rows % k_blocks) * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
         }
         else
         {
             // Copy of submatrix to GPU
-            cudaMemcpyAsync(d_A_sub[i], h_A + offset, sizePerBlock, cudaMemcpyHostToDevice, streams[i]);
+            cudaMemcpyAsync(d_A_sub[i], h_A + offset_A, sizePerBlock, cudaMemcpyHostToDevice, streams[i]);
 
             // Compute multiplication of each block/stream
             // Launch kernel on the current stream
-            MV_KBlocks_kernel <<< nblocks, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, rowsPerBlock, m_cols, 1);
+            MV_KBlocks_kernel <<< 1, nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, rowsPerBlock, m_cols, 1);
 
             // Copy value of y back to CPU
-            cudaMemcpyAsync(h_y + offset, d_y + offset, rowsPerBlock * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
+            cudaMemcpyAsync(h_y + offset_y, d_y + offset_y, rowsPerBlock * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
         }
 
     }
