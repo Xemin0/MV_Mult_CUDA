@@ -1,0 +1,13 @@
+## For `./data/*.dat`
+
+- The ones with `_cpu` or `_gpu` are results taken separately (thus may not be comparable) on RTX 6000
+- The others are results taken on RTX3090
+
+Evaluating the performance of $y = Ax$ with:
+- $K$ Streams for $K = 1, 2, \dots, 8$
+- The dimensions of the matrix $A$: $M$-by-$N$ for $M,N = 1000 + 200i,\quad i = 0, 1, \dots, 5$
+
+and the time is measured for the following steps:
+- For each `streams[i]` copy a submatrix `A_sub[i]` to GPU 
+- Launch the kernel on each stream
+- For each `streams[i]` copy the corresponding (partial) result of $y$ back to CPU 

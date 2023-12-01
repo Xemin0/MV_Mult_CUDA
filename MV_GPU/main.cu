@@ -17,7 +17,7 @@ using namespace std;
 #include "./lib/MyUtils.h" // Customized utility functions for Matrix-Vector Multiplication
 #include "./lib/MV_GPU.h" // kernels and kernel launching methods for MV multiplication on GPU
 
-void compare_performance(bool isCPU = true, unsigned int n = 4) {
+void compare_performance(bool isCPU = true, unsigned int n = 5) {
 	/*
 	 * Task: Compare the Performances
      * with varying
