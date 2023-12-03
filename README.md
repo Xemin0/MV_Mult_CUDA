@@ -40,8 +40,8 @@ The others are obtained on RTX6000 with CUDA11.2.0 (The current results are take
 - `./MV_GPU/MV_GPU.sh` (SLURM script to run on Oscar@CCV with CUDA)
 
 #### Python Part (For Plotting)
-- `results/python_plot/heatmap.py` (Plotting data matrices as heatmaps)
-- `results/python_plot/RFmodel.py` (Plotting Roofline model for the tested GPU)
+- `results/py_plot/heatmap.py` (Plotting data matrices as heatmaps)
+- `results/py-plot/timeVSstreams.py` (Plotting performance changes w.r.t. the number of streams)
 
 #### Miscellaneous Folders
 - `./MV_GPU/data/` **REQUIRED** for output files of performance measurements
