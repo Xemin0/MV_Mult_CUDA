@@ -14,6 +14,8 @@ nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c 
 ### IMPORTANT NOTES ON MEMORY ALLOCATORS (on HOST)
 Since CUDA stream's asynchronous operations require pinned or non-pageable memory allocation on HOST, therefore `cudaMalloc` will not work. Instead, `cudaHostAlloc` or `cudaHostRegister` should be used to allocate HOST memory, before transfering data from HOST to GPU
 
+
+## Objective of the Practice Project
 Evaluating the performance of $y = Ax$ with:
 - $K$ Streams for $K = 1, 2, \dots, 8$
 - The dimensions of the matrix $A$: $M$-by-$N$ for $M,N = 1000 + 200i,\quad i = 0, 1, \dots, 5$
