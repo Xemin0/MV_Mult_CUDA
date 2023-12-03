@@ -34,15 +34,20 @@ The others are obtained on RTX6000 with CUDA10.2.0 (The current results are take
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
 
 ### IMPORTANT NOTES ON COMPILING FLAG
+This is important to include the architecture specification when compiling on a cluster!
 - `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
-- For `Turing` architecture, consider the lower of the config from GPU used 
+- For `Turing` architecture, consider the lower of the config from GPU used (e.g. `sm_75` for RTX6000)
+- (Optional) It is possible to do cross-compiling on a cluster for multiple architectures
 
-~`-arch sm_86` flag (or higher) specifying the architecture required to use `atomicAdd()` with `cuda>=6.x`~
+```bash
+# Example for Cross Compiling
+nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o
+```
 
 
 ```bash
-nvcc -arch sm_86 -c MV_GPU.cu -o MV_GPU.o
-nvcc -arch sm_86 -c main.cu -o main.o
+nvcc -arch sm_75 -c MV_GPU.cu -o MV_GPU.o
+nvcc -arch sm_75 -c main.cu -o main.o
 g++ -c MyUtils.cpp -o MyUtils.o
 
 # Link everything together

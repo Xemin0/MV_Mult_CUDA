@@ -28,8 +28,8 @@ nvidia-smi
 module load cuda/11.2.0 gcc/10.2
 
 # Compile
-nvcc -arch sm_86 -c MV_GPU.cu -o MV_GPU.o
-nvcc -arch sm_86 -c main.cu -o main.o
+nvcc -arch sm_75 -c MV_GPU.cu -o MV_GPU.o
+nvcc -arch sm_75 -c main.cu -o main.o
 g++ -c MyUtils.cpp -o MyUtils.o
 
 # Link everything together
