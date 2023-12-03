@@ -8,8 +8,11 @@
 
 ```bash
 # Example for Cross Compiling
-nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o         
+nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o
 ```
+
+### IMPORTANT NOTES ON MEMORY ALLOCATORS (on HOST)
+Since CUDA stream's asynchronous operations require pinned or non-pageable memory allocation on HOST, therefore `cudaMalloc` will not work. Instead, `cudaHostAlloc` or `cudaHostRegister` should be used to allocate HOST memory, before transfering data from HOST to GPU
 
 Evaluating the performance of $y = Ax$ with:
 - $K$ Streams for $K = 1, 2, \dots, 8$
