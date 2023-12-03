@@ -25,7 +25,7 @@ and the time is measured for the following steps:
 - Launch the kernel on each stream
 - For each `streams[i]` copy the corresponding (partial) result of $y$ back to CPU
 
-Data Results (CPU time) `.dat` files without `_cpu` or `_gpu` are obtained on RTX3090 with CUDA10.2.0
+Data Results (CPU time) `.dat` files without `_cpu` or `_gpu` are obtained on RTX3090 with CUDA11.2.0
 
 The others are obtained on RTX6000 with CUDA10.2.0 (The current results are taken separately. They thus may not be comparable)
 
