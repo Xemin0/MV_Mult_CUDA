@@ -11,3 +11,7 @@ and the time is measured for the following steps:
 - For each `streams[i]` copy a submatrix `A_sub[i]` to GPU 
 - Launch the kernel on each stream
 - For each `streams[i]` copy the corresponding (partial) result of $y$ back to CPU 
+
+## NSIGHT Reports
+- `report1.qdrep` the complete nsight report of the complete test run for multiple varying parameters
+- `report1400-6.qdrep` a single evalution run for $N = M = 1400$ with 6 Streams
