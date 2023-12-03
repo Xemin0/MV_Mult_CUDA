@@ -88,9 +88,9 @@ Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multipli
 - Atomically add the reduced summations to the output vector
 
 ## Visualizing the Asynchronous Streams in NVIDIA NSIGHT
-The asynchronous executions by CUDA streams are observed
+**The asynchronous executions by CUDA streams are observed**
 ![Stair-wise Asynchronous Executions](results/pix/stream0.png?raw=true "Title") 
 
-The diminishing marginal improvements in performance w.r.t the number of CUDA streams
+**The diminishing marginal improvements in performance w.r.t the number of CUDA streams for Matrix Dimensions $N=M=2000$**
 ![Diminishing Marginal Improvements](results/pix/TimevsStreams.png?raw=true "Title")
 
