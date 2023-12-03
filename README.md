@@ -3,6 +3,17 @@ Primarily focus on the performance (in the form of elapsed time on GPU with achi
 
 *For* $y = Ax$ *refer to the end of each kernel defined in* `MV_GPU.cu` for the small modifications
 
+### IMPORTANT NOTES ON COMPILING FLAG
+This is important to include the architecture specification when compiling on a cluster!
+- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
+- For `Turing` architecture, consider the lower of the config from GPU used (e.g. `sm_75` for RTX6000)
+- (Optional) It is possible to do cross-compiling on a cluster for multiple architectures
+
+```bash
+# Example for Cross Compiling
+nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o
+```
+
 ### Matrix Multiplication with CUDA Stream
 Project codes and some results are in branch `withCUDAstream`.
 
@@ -28,16 +39,6 @@ Swtich to that branch by `git checkout withCUDAstream`
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
 
-### IMPORTANT NOTES ON COMPILING FLAG
-This is important to include the architecture specification when compiling on a cluster!
-- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
-- For `Turing` architecture, consider the lower of the config from GPU used (e.g. `sm_75` for RTX6000)
-- (Optional) It is possible to do cross-compiling on a cluster for multiple architectures
-
-```bash
-# Example for Cross Compiling
-nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o
-```
 
 ```bash
 nvcc -arch sm_75 -c MV_GPU.cu -o MV_GPU.o
