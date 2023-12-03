@@ -76,3 +76,7 @@ Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multipli
 - Matrix $A$ is divided into $K$ submatrices and copy to GPU by each stream
 - Each block/stream compute rows separately.
 - The results are atomically added to each entry of $y$ for each row
+
+## Visualizing the Streams in NVIDIA NSIGHT
+The asynchronous executions of CUDA streams are observed
+![Stair-wise Asynchronous Executions](results/pix/stream0.png?raw=true "Title") 
