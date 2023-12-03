@@ -203,7 +203,7 @@ void MV_multi_ILP2(
         unsigned int m_cols);
 
 //========= Utilities  =========//
-void last_cuda_error();
+void last_cuda_error(string event);
 
 float eval_MV_Mult(unsigned int N, unsigned int M,\
         bool base = true, bool single = false);

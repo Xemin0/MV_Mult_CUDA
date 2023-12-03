@@ -420,11 +420,13 @@ float MV_KBlocks(
     double *d_A_sub[k_blocks];
     for (int i = 0; i < k_blocks; i++)
         cudaMalloc(&d_A_sub[i], sizePerBlock);
+    last_cuda_error("submatrix");
 
     // Creating Streams
     cudaStream_t streams[k_blocks];
     for (int i = 0; i < k_blocks; i++)
         cudaStreamCreate(&streams[i]);
+    last_cuda_error("streams")
 
     timerG.Start();
     timer.Start();
@@ -449,21 +451,23 @@ float MV_KBlocks(
             // Copy value of y back to CPU
             cudaMemcpyAsync(h_y + offset_y, d_y + offset_y, (n_rows % k_blocks) * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
 
-            last_cuda_error();
+            last_cuda_error("memcpy D2H");
         }
         else
         {
             // Copy of submatrix to GPU
             cudaMemcpyAsync(d_A_sub[i], h_A + offset_A, sizePerBlock, cudaMemcpyHostToDevice, streams[i]);
 
+            last_cuda_error("memcpy H2D");
             // Compute multiplication of each block/stream
             // Launch kernel on the current stream
             MV_KBlocks_kernel <<< dim3(1, 1, 1), nthreads, 0, streams[i] >>> (d_A_sub[i], d_x, d_y + i * rowsPerBlock, rowsPerBlock, m_cols, 1);
 
+            last_cuda_error("launching kernel");
             // Copy value of y back to CPU
             cudaMemcpyAsync(h_y + offset_y, d_y + offset_y, rowsPerBlock * sizeof(double), cudaMemcpyDeviceToHost, streams[i]);
 
-            last_cuda_error();
+            last_cuda_error("memcpy D2H");
         }
 
     }
@@ -517,12 +521,12 @@ void MV_multi_ILP2(
 }
 
 //========= Utilities  =========//
-void last_cuda_error()
+void last_cuda_error(string event)
 {
     cudaError_t err = cudaGetLastError();
     if (cudaSuccess != err)
     {
-        fprintf(stderr, "CUDA Error: %s\n", cudaGetErrorString(err));
+        fprintf(stderr, "CUDA Error at %s: %s\n", event.c_str(), cudaGetErrorString(err));
     }
 }
 
@@ -675,7 +679,7 @@ float eval_MV_Mult_streams(unsigned int N, unsigned int M, unsigned int Kstreams
     // Using pinned host memory for everything on host
     cudaHostAlloc((void **)&h_mat, N * M * sizeof(double), cudaHostAllocDefault);
     cudaHostAlloc((void **)&h_vec, M * sizeof(double), cudaHostAllocDefault);
-    cudaHostAlloc((void **)&h_res, M * sizeof(double), cudaHostAllocDefault);
+    cudaHostAlloc((void **)&h_res, N * sizeof(double), cudaHostAllocDefault);
     // Randomize the entries for inputs
     rand_vec(h_mat, N*M);
     rand_vec(h_vec, M);
