@@ -28,12 +28,15 @@ Swtich to that branch by `git checkout withCUDAstream`
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
 
-`-arch sm_86` flag (or higher) specifying the architecture required to use `atomicAdd()` with `cuda>=6.x`
+### IMPORTANT NOTES ON COMPILING FLAG
+- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
+- For `Turing` architecture, consider the lower of the config from GPU used 
 
+~`-arch sm_86` flag (or higher) specifying the architecture required to use `atomicAdd()` with `cuda>=6.x`~
 
 ```bash
-nvcc -arch sm_86 -c MV_GPU.cu -o MV_GPU.o
-nvcc -arch sm_86 -c main.cu -o main.o
+nvcc -arch sm_75 -c MV_GPU.cu -o MV_GPU.o
+nvcc -arch sm_75 -c main.cu -o main.o
 g++ -c MyUtils.cpp -o MyUtils.o
 
 # Link everything together
