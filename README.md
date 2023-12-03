@@ -1,4 +1,16 @@
 # Evaluating Performances of Matrix-Vector Multiplication with CUDA Streams
+
+### IMPORTANT NOTES ON COMPILING FLAG
+**This is important to include the architecture specification when compiling on a cluster!**
+- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
+- For `Turing` architecture, consider the lower of the config from GPU used (e.g. `sm_75` for RTX6000)
+- (Optional) It is possible to do cross-compiling on a cluster for multiple architectures
+
+```bash
+# Example for Cross Compiling
+nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o         
+```
+
 Evaluating the performance of $y = Ax$ with:
 - $K$ Streams for $K = 1, 2, \dots, 8$
 - The dimensions of the matrix $A$: $M$-by-$N$ for $M,N = 1000 + 200i,\quad i = 0, 1, \dots, 5$
@@ -32,17 +44,6 @@ The others are obtained on RTX6000 with CUDA10.2.0 (The current results are take
 
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
-
-### IMPORTANT NOTES ON COMPILING FLAG
-This is important to include the architecture specification when compiling on a cluster!
-- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
-- For `Turing` architecture, consider the lower of the config from GPU used (e.g. `sm_75` for RTX6000)
-- (Optional) It is possible to do cross-compiling on a cluster for multiple architectures
-
-```bash
-# Example for Cross Compiling
-nvcc -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -c *.cu -o *.o
-```
 
 
 ```bash
