@@ -79,7 +79,7 @@ To run on Oscar@CCV use the provided SLURM script
 As in the kernel `MV_KBlocks_kernel` and the kernel launching method `MV_KBlocks` in `MV_GPU.cu`
 
 Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multiplication of $$y = Ax$$, each block will potentailly computes for multiple rows of the matrix $A$.
-- All memory on HOST for the input (matrix, vector) and the output ()
+- All memories on HOST for the input (matrix, vector) and the output (the resulting vector of the product) are allocated with `cudaHostAlloc` (or `cudaHostRegister`) required for asynchronous operations.
 - Matrix $A$ is divided into $K$ submatrices and copy to GPU by each stream
 - Each block/stream compute rows separately.
 - Inside the kernel the vector's entries in the MV-Multiplication are shared within the BLOCK (`BLOCK_SIZE` = `WARP_SIZE`) using the warp-level primitive `__shfl_sync()`, instead of using a shared memory
