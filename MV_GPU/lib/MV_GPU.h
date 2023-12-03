@@ -142,7 +142,7 @@ void multi_reduction(
 
 __global__ void MV_KBlocks_kernel(
                 double *d_A, // Matrix on DEVICE
-                double *d_x, // cudaHostAlloc
+                double *d_x, 
                 double *d_y,
                 unsigned int n_rows,
                 unsigned int m_cols,
@@ -151,15 +151,14 @@ __global__ void MV_KBlocks_kernel(
      * Handling the Whole Matrix with a Specified Number of Blocks
      * while each block is processed by a CUDA stream
      *
-     * the vector x will be allocated by cudaHostAlloc accessible by both the HOST and the DEVICE
-     * Using shared memory to load the vector x 
+     * Using __shlf_sync instead of shared memory to load the vector x 
      * as it will be used repeatedly for multiple rows of the matrix within each block
      */
 
 
 float MV_KBlocks(
         double *h_A, // Matrix on HOST
-        double *d_x, // cudaHostAlloc
+        double *d_x, 
         double *d_y,
         double *h_y,
         unsigned int n_rows,
@@ -204,6 +203,7 @@ void MV_multi_ILP2(
         unsigned int m_cols);
 
 //========= Utilities  =========//
+void last_cuda_error();
 
 float eval_MV_Mult(unsigned int N, unsigned int M,\
         bool base = true, bool single = false);

@@ -8,13 +8,13 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-numBlocks = 1
+numBlocks = 2
 
 fname = "e_us" + str(numBlocks) + "_cpu.dat"
 
 fname = "../data/" + fname
 
-title_str = f"Total Time (milisecond, ms) for Matrix-Vector Multiplication with\n {numBlocks} Streams in CUDA"
+title_str = f"Total Time (milisecond, ms)\n for Matrix-Vector Multiplication with\n {numBlocks} Streams in CUDA"
 
 
 # Read and load as np arrays

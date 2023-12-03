@@ -33,7 +33,11 @@ The others are obtained on RTX6000 with CUDA10.2.0 (The current results are take
 ## Compile and Run
 *Only tested with `CUDA11.2.0` and `gcc10.2` on NVIDIA RTX 3090 and 6000*
 
-`-arch sm_86` flag (or higher) specifying the architecture required to use `atomicAdd()` with `cuda>=6.x`
+### IMPORTANT NOTES ON COMPILING FLAG
+- `-arch sm_86` targets the compute capability 8.6 which is for `Ampere` architecture
+- For `Turing` architecture, consider the lower of the config from GPU used 
+
+~`-arch sm_86` flag (or higher) specifying the architecture required to use `atomicAdd()` with `cuda>=6.x`~
 
 
 ```bash

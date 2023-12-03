@@ -54,7 +54,7 @@ void show_vec(unsigned int N, double* vec) {
 }
 
 
-double** rand_mat(unsigned int N, unsigned int M, bool contiguous = false, double lower_bound = -100, double upper_bound = 100) {
+double** rand_mat(unsigned int N, unsigned int M, bool contiguous, double lower_bound, double upper_bound) {
 	/*
 	 * Generate a random N by M matrix
 	 * w or w\o contiguous memory allocation, i.e. malloc() or calloc()
@@ -109,7 +109,7 @@ double** rand_mat(unsigned int N, unsigned int M, bool contiguous = false, doubl
 	return mat;
 }
 
-double* rand_vec(unsigned int N, double lower_bound = -1e6, double upper_bound = 1e6) {
+void rand_vec(double *vec, unsigned int N, double lower_bound, double upper_bound) {
 	/*
 	 * Generate a random N dimensional vector
 	 *
@@ -122,13 +122,11 @@ double* rand_vec(unsigned int N, double lower_bound = -1e6, double upper_bound =
 	// srandom(time(NULL));
 
 	// initialize the vector
-	double* vec = (double*)malloc(N * sizeof(double));
+	//double* vec = (double*)malloc(N * sizeof(double));
 	// Assign random numbers to each entry
 	for (unsigned int i = 0; i < N; i++) {
 		vec[i] = lower_bound + range * (random() % max_num) / (max_num + 0.0);
 	}
-
-	return vec;
 }
 
 

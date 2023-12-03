@@ -24,10 +24,10 @@ void show_mat(unsigned int N, unsigned int M, double** mat); // display the matr
 
 void show_vec(unsigned N, double* vec); // display the N dimensional vector as a column vector
 
-double** rand_mat(unsigned int N, unsigned int M, bool contiguous = false, double lower_bound = -100, double upper_bound = 100); // generate a N by M matrix w or w\o contiguous memory allocation
+double** rand_mat(unsigned int N, unsigned int M, bool contiguous true, double lower_bound = -100, double upper_bound = 100); // generate a N by M matrix w or w\o contiguous memory allocation
 																			// with malloc() or calloc()
 
-double* rand_vec(unsigned int N, double lower_bound = -100, double upper_bound = 100); // generate a random N dimensional vector
+void rand_vec(double *vec, unsigned int N, double lower_bound = -100, double upper_bound = 100); // generate a random N dimensional vector
 
 
 /*
