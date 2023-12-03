@@ -90,3 +90,7 @@ Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multipli
 ## Visualizing the Asynchronous Streams in NVIDIA NSIGHT
 The asynchronous executions by CUDA streams are observed
 ![Stair-wise Asynchronous Executions](results/pix/stream0.png?raw=true "Title") 
+
+The diminishing marginal improvements in performance w.r.t the number of CUDA streams
+![Diminishing Marginal Improvements](results/pix/TimevsStreams.png?raw=true "Title")
+
