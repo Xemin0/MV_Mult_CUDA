@@ -74,6 +74,7 @@ To run on Oscar@CCV use the provided SLURM script
 - ~Reduce the number of calls for `atomicAdd` in the kernel; instead should do Manual Reduction before writing the final result (the corresponding entry) with a single `atomicAdd`~
 - Provide subroutines to finalize the pipeline of Matrix-Vector Multiplication with CUDA stream
 - Verify the correctness of the designed kernels
+- Add `CheckCUDA` method used to check the status of any CUDA API calls, for better debugging 
 
 ## Methodology 
 As in the kernel `MV_KBlocks_kernel` and the kernel launching method `MV_KBlocks` in `MV_GPU.cu`
