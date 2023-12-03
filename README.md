@@ -27,7 +27,7 @@ and the time is measured for the following steps:
 
 Data Results (CPU time) `.dat` files without `_cpu` or `_gpu` are obtained on RTX3090 with CUDA11.2.0
 
-The others are obtained on RTX6000 with CUDA10.2.0 (The current results are taken separately. They thus may not be comparable)
+The others are obtained on RTX6000 with CUDA11.2.0 (The current results are taken separately. They thus may not be comparable)
 
 
 ## Folder Structure
@@ -71,17 +71,21 @@ To run on Oscar@CCV use the provided SLURM script
 
 ## TO-DOs
 - Combine the `gpuTimer` and `cpuTimer` into one, so that the GPU time and CPU time measurements are comparable
-- Reduce the number of calls for `atomicAdd` in the kernel; instead should do Manual Reduction before writing the final result (the corresponding entry) with a single `atomicAdd`
+- ~Reduce the number of calls for `atomicAdd` in the kernel; instead should do Manual Reduction before writing the final result (the corresponding entry) with a single `atomicAdd`~
+- Provide subroutines to finalize the pipeline of Matrix-Vector Multiplication with CUDA stream
+- Verify the correctness of the designed kernels
 
 ## Methodology 
 As in the kernel `MV_KBlocks_kernel` and the kernel launching method `MV_KBlocks` in `MV_GPU.cu`
 
 Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multiplication of $$y = Ax$$, each block will potentailly computes for multiple rows of the matrix $A$.
-- Vector $x$ is allocated by `cudaHostAlloc` as pinned memory on HOST accessible by both the HOST and the DEVICE
+- All memory on HOST for the input (matrix, vector) and the output ()
 - Matrix $A$ is divided into $K$ submatrices and copy to GPU by each stream
 - Each block/stream compute rows separately.
-- The results are atomically added to each entry of $y$ for each row
+- Inside the kernel the vector's entries in the MV-Multiplication are shared within the BLOCK (`BLOCK_SIZE` = `WARP_SIZE`) using the warp-level primitive `__shfl_sync()`, instead of using a shared memory
+- Manual reduction over tiled summations (kept in a shared memory within a block for each thread) from each thread within a Warp
+- Atomically add the reduced summations to the output vector
 
-## Visualizing the Streams in NVIDIA NSIGHT
-The asynchronous executions of CUDA streams are observed
+## Visualizing the Asynchronous Streams in NVIDIA NSIGHT
+The asynchronous executions by CUDA streams are observed
 ![Stair-wise Asynchronous Executions](results/pix/stream0.png?raw=true "Title") 
