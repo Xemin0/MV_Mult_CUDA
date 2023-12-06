@@ -20,12 +20,14 @@
 #include <cuda.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 
 #include "./lib/MyUtils.h"
 #include "./lib/MV_GPU.h"
 
 // Block size to conincide with Warp size for simplicity
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 1024
+#define WARP_SIZE 32
 #define FULL_MASK 0xffffffff
 
 struct gpuTimer
@@ -324,53 +326,45 @@ __global__ void MV_KBlocks_kernel(
      * Handling the Whole Matrix with a Specified Number of Blocks
      * while each block is processed by a CUDA stream
      *
-     * Using __shfl_sync instead of shared memory to load the vector x 
-     * as it will be used repeatedly for multiple rows of the matrix within each block
+     * There's actually no need to use shared memory or __shfl_sync 
+     * for the vector d_x, 
+     * as each thread will only calculate one product at a time
      */
     unsigned int rowsPerBlock = (n_rows + k_blocks - 1) / k_blocks; // Each Block will handle these rows respectively
     unsigned int startCol = threadIdx.x;
     unsigned int stride = blockDim.x;
 
-    //__shared__ double x_shared[BLOCK_SIZE]; // shared memory to load the vector x
-    __shared__ double partial_sums[BLOCK_SIZE]; // shared memory for partial sum
-    unsigned int curr_row;
-    double x_shfl_src, x_shfl_dest;
+    unsigned int warpId = threadIdx.x / WARP_SIZE;
+    unsigned int laneId = threadIdx.x % WARP_SIZE;
+    unsigned int nwarps = blockDim.x / WARP_SIZE;
 
-    // For Large Column Size > blockDim.x
-    //
+    //__shared__ double partial_sums[BLOCK_SIZE]; // shared memory for partial sum
+    __shared__ double warpSums[BLOCK_SIZE / WARP_SIZE]; // reduced sum within each warp
+    unsigned int curr_row;
+    double x_element;
+
     // in case the entire row is not covered by the assigned block size
     for (int col = startCol; col < m_cols; col += stride)
     {
         // load the vector x
-        //x_shared[threadIdx.x] = d_x[col];
-        x_shfl_src = (col < m_cols) ? d_x[col] : 0.0;
-        
-
-        //__syncthreads();
+        x_element = (col < m_cols) ? d_x[col] : 0.0;
 
         // For each row that the block is responsible for 
+        #pragma unroll
         for (int i = 0; i < rowsPerBlock; i++)
         {
             double sum = 0.0;
             curr_row = blockIdx.x * rowsPerBlock + i;
 
             if (curr_row < n_rows)
-            {
-                // shfl_sync to exchange entries of the vector within the warp
-                // WARP_SIZE = BLOCK_SIZE = 32
-                x_shfl_dest = __shfl_sync(FULL_MASK, x_shfl_src, threadIdx.x % BLOCK_SIZE);
-                sum += d_A[curr_row * m_cols + col] * x_shfl_dest;
+                sum += d_A[curr_row * m_cols + col] * x_element;
 
-                // Atomically add to the output for the current row
-                //atomicAdd(&d_y[curr_row], sum); 
-                // #### instead of atomicAdd consider partial sum then
-                // #### Reduction within block before atomically add the final result 
-                
-            }
+            /*
             partial_sums[threadIdx.x] = sum;
             __syncthreads();
 
-            // Reduciton in the shared memory
+            
+            // Reduciton in the shared memory 
             for (int s = blockDim.x / 2; s > 0; s >>=1)
             {
                 if (threadIdx.x < s)
@@ -378,10 +372,45 @@ __global__ void MV_KBlocks_kernel(
 
                 __syncthreads();
             }
+            */
 
-            // the first thread to write the result
+            // Reduction *** with __shfl_down_sync()
+            // Intra-Warp Reduction
+            for (int s = WARP_SIZE / 2; s > 0; s >>= 1)
+                sum += __shfl_down_sync(FULL_MASK, sum, s);
+
+            __syncwarp();
+            // Inter-Warp Reduction
+            if (nwarps > 1) // more than 1 one warp existing
+            {
+                if (0 == laneId)
+                    warpSums[warpId] = sum;
+
+                __syncthreads();
+
+                // Use the first warp to perform Inter-Warp reduction
+                if (0 == warpId)
+                {
+                    for (int s = nwarps / 2; s > 0; s >>= 1)
+                    {
+                        if (threadIdx.x < s)
+                            warpSums[threadIdx.x] += warpSums[threadIdx.x + s];
+                    }
+                    __syncthreads();
+                }
+                
+                /*
+                // Use the first thread to do simple summation
+                if (0 == threadIdx.x)
+                    for (int i = 1; i < nwarps; i++)
+                        sum += warpSums[i];
+                */
+            }
+
+            // the first thread to write the result for the current row
             if (0 == threadIdx.x && curr_row < n_rows)
-                atomicAdd(&d_y[curr_row], partial_sums[0]);
+                //atomicAdd(&d_y[curr_row], partial_sums[0]);
+                atomicAdd(&d_y[curr_row], warpSums[0]);
         }
     }
 }
@@ -426,7 +455,7 @@ float MV_KBlocks(
     cudaStream_t streams[k_blocks];
     for (int i = 0; i < k_blocks; i++)
         cudaStreamCreate(&streams[i]);
-    last_cuda_error("streams")
+    last_cuda_error("streams");
 
     timerG.Start();
     timer.Start();
@@ -521,7 +550,7 @@ void MV_multi_ILP2(
 }
 
 //========= Utilities  =========//
-void last_cuda_error(string event)
+void last_cuda_error(std::string event)
 {
     cudaError_t err = cudaGetLastError();
     if (cudaSuccess != err)

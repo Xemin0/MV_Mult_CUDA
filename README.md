@@ -71,7 +71,7 @@ To run on Oscar@CCV use the provided SLURM script
 
 ## TO-DOs
 - Combine the `gpuTimer` and `cpuTimer` into one, so that the GPU time and CPU time measurements are comparable
-- ~Reduce the number of calls for `atomicAdd` in the kernel; instead should do Manual Reduction before writing the final result (the corresponding entry) with a single `atomicAdd`~
+- Rewrite Reduction methods for all other Matrix-Vector Multiplication kernels for `BLOCK_SIZE` $\neq$ `WARP_SIZE`
 - Provide subroutines to finalize the pipeline of Matrix-Vector Multiplication with CUDA stream
 - Verify the correctness of the designed kernels
 - Add `CheckCUDA` method used to check the status of any CUDA API calls, for better debugging 
@@ -83,11 +83,14 @@ Since we are using $K$ streams/blocks to take care of the Matrix-Vector Multipli
 - All memories on HOST for the input (matrix, vector) and the output (the resulting vector of the product) are allocated with `cudaHostAlloc` (or `cudaHostRegister`) required for asynchronous operations.
 - Matrix $A$ is divided into $K$ submatrices and copy to GPU by each stream
 - Each block/stream compute rows separately.
-- Inside the kernel the vector's entries in the MV-Multiplication are shared within the BLOCK (`BLOCK_SIZE` = `WARP_SIZE`) using the warp-level primitive `__shfl_sync()`, instead of using a shared memory
-- Manual reduction over tiled summations (kept in a shared memory within a block for each thread) from each thread within a Warp
+- Each thread computes one product (or more due to tiling for each row)
+- Two-Stage Reductions
+    - Intra-Warp Reduction with the Warp-Level Primitive `__shfl_down_sync()`
+    - Inter-Warp Reduction performed by the first warp within a block
+    - **May need to consider the number of Grids or Instruction-Level Parallelism(ILP)**
 - Atomically add the reduced summations to the output vector
 
-## Visualizing the Asynchronous Streams in NVIDIA NSIGHT
+## Visualizing the Asynchronous Streams in NVIDIA NSIGHT (Not Updated with Reworked Kernels)
 **The asynchronous executions by CUDA streams are observed**
 
 ![Stair-wise Asynchronous Executions](./results/pix/stream0.png?raw=true "NSIGHT Profile") 

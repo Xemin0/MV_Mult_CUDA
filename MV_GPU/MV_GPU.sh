@@ -39,4 +39,4 @@ nvcc main.o MV_GPU.o MyUtils.o -o testStreams.out
 rm main.o MV_GPU.o MyUtils.o
 
 # Run and Profile
-nsys profile ./testStreams.out
+nsys profile --stats=true --force-overwrite=true -o report1 ./testStreams.out
