@@ -392,10 +392,8 @@ __global__ void MV_KBlocks_kernel(
                 if (0 == warpId)
                 {
                     for (int s = nwarps / 2; s > 0; s >>= 1)
-                    {
                         if (threadIdx.x < s)
                             warpSums[threadIdx.x] += warpSums[threadIdx.x + s];
-                    }
                     __syncthreads();
                 }
                 
