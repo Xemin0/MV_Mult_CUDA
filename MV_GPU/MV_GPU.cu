@@ -390,9 +390,11 @@ __global__ void MV_KBlocks_kernel(
 
                 // Use the first nwarps threads to perform Inter-Warp reduction
                 for (int s = nwarps / 2; s > 0; s >>= 1)
+                {
                     if (threadIdx.x < s)
                         warpSums[threadIdx.x] += warpSums[threadIdx.x + s];
-                __syncthreads();
+                    __syncthreads();
+                }
                 
                 /*
                 // Use the first thread to do simple summation
