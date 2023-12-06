@@ -380,14 +380,15 @@ __global__ void MV_KBlocks_kernel(
                 sum += __shfl_down_sync(FULL_MASK, sum, s);
 
             __syncwarp();
+
+            if (0 == laneId)
+                warpSums[warpId] = sum;
+
+            __syncthreads();
+
             // Inter-Warp Reduction
             if (nwarps > 1) // more than 1 one warp existing
             {
-                if (0 == laneId)
-                    warpSums[warpId] = sum;
-
-                __syncthreads();
-
                 // Use the first nwarps threads to perform Inter-Warp reduction
                 for (int s = nwarps / 2; s > 0; s >>= 1)
                 {
